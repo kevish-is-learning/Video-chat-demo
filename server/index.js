@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -13,7 +14,9 @@ import { ApiResponse } from "./src/utils/api-response.js";
 dotenv.config();
 const PORT = Number(process.env.PORT) || 8080;
 const app = express();
-const io = new Server({
+const server = http.createServer(app);
+
+const io = new Server(server, {
   cors: true,
 });
 
@@ -97,8 +100,8 @@ io.on("connection", (socket) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-io.listen(8081);
+// io.listen(8081);

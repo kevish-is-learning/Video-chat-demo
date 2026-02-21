@@ -69,7 +69,8 @@ export default function RoomPage() {
       }
 
       // Initialize socket connection
-      const socket = io("https://videochat-u37j.onrender.com:8081");
+      // const socket = io("http://localhost:8080");
+      const socket = io("https://videochat-u37j.onrender.com");
       socketRef.current = socket;
 
       socket.on("connect", () => {
