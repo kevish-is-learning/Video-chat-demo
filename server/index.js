@@ -17,15 +17,11 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: true,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
-
-// const corsOptions = {
-//   origin: "http://localhost:3000", // replace with your frontend origin
-//   credentials: true,
-//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-// };
 
 app.use(cors());
 
@@ -38,6 +34,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.status(200).json(new ApiResponse(200, "Server is running"));
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 const usernameToSocketIdMap = {};
@@ -96,6 +96,12 @@ io.on("connection", (socket) => {
       socket.broadcast.to(roomId).emit("userLeft", { socketId: socket.id });
       delete socketToRoomMap[socket.id];
     }
+    for (const [user, sId] of Object.entries(usernameToSocketIdMap)) {
+      if (sId === socket.id) {
+        delete usernameToSocketIdMap[user];
+        break;
+      }
+    }
     console.log(`Socket disconnected: ${socket.id}`);
   });
 });
@@ -103,5 +109,3 @@ io.on("connection", (socket) => {
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// io.listen(8081);
